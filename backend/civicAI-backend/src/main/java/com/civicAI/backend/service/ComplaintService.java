@@ -2,13 +2,19 @@ package com.civicAI.backend.service;
 
 import com.civicAI.backend.dto.ComplaintRequest;
 import com.civicAI.backend.dto.ComplaintResponse;
+import com.civicAI.backend.dto.ComplaintStatusRequest;
 import com.civicAI.backend.entity.Complaint;
+import com.civicAI.backend.exception.ResourceNotFoundException;
 import com.civicAI.backend.repository.ComplaintRepository;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.PrecisionModel;
 import org.springframework.stereotype.Service;
+
+import java.time.OffsetDateTime;
+import java.util.List;
+import java.util.Set;
 
 @Service
 public class ComplaintService {
@@ -42,6 +48,42 @@ public class ComplaintService {
 
         return toResponse(complaintRepository.save(complaint));
     }
+
+    public ComplaintResponse getComplaint(Long id) {
+        Complaint complaint = complaintRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Complaint not found with id: " + id));
+        return toResponse(complaint);
+    }
+
+    public List<ComplaintResponse> getAllComplaints() {
+        return complaintRepository.findAll().stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
+    public ComplaintResponse updateComplaintStatus(Long id, ComplaintStatusRequest request) {
+        Complaint complaint = complaintRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Complaint not found with id: " + id));
+
+        String newStatus = request.getStatus().toUpperCase();
+
+        if (!VALID_STATUSES.contains(newStatus)) {
+            throw new IllegalArgumentException(
+                    "Invalid status '" + request.getStatus() + "'. Allowed values: " + VALID_STATUSES);
+        }
+
+        complaint.setStatus(newStatus);
+
+        if ("RESOLVED".equals(newStatus)) {
+            complaint.setResolvedAt(OffsetDateTime.now());
+        }
+
+        return toResponse(complaintRepository.save(complaint));
+    }
+
+    private static final Set<String> VALID_STATUSES = Set.of(
+            "SUBMITTED", "AI_ANALYZED", "ASSIGNED", "IN_PROGRESS", "RESOLVED", "REJECTED"
+    );
 
     private ComplaintResponse toResponse(Complaint complaint) {
         ComplaintResponse response = new ComplaintResponse();
