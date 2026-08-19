@@ -1,4 +1,23 @@
 
-# JVM crash/debug files
+# Java / JVM crash logs
 hs_err_pid*.log
 replay_pid*.log
+
+# Maven
+**/target/
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Environment
+.env
+.env.*
+!.env.example
