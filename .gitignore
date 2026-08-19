@@ -21,3 +21,4 @@ venv/
 .env
 .env.*
 !.env.example
+backend/civicAI-backend/run.log
