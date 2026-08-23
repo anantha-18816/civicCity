@@ -13,6 +13,8 @@ public class ComplaintResponse {
     private Double longitude;
     private String status;
     private Integer priority;
+    private Long duplicateOfId;
+    private Double duplicateScore;
     private OffsetDateTime createdAt;
 
     public Long getId() {
@@ -85,6 +87,22 @@ public class ComplaintResponse {
 
     public void setPriority(Integer priority) {
         this.priority = priority;
+    }
+
+    public Long getDuplicateOfId() {
+        return duplicateOfId;
+    }
+
+    public void setDuplicateOfId(Long duplicateOfId) {
+        this.duplicateOfId = duplicateOfId;
+    }
+
+    public Double getDuplicateScore() {
+        return duplicateScore;
+    }
+
+    public void setDuplicateScore(Double duplicateScore) {
+        this.duplicateScore = duplicateScore;
     }
 
     public OffsetDateTime getCreatedAt() {

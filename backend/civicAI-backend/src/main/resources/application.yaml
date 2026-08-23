@@ -21,3 +21,10 @@ server:
 
 ai-service:
   url: http://localhost:8000
+
+duplicate:
+  radius-m: 100
+  score-threshold: 0.7
+  spatial-weight: 0.6
+  image-weight: 0.4
+  max-candidates: 10

@@ -42,6 +42,9 @@ public class AiAnalysis {
     @Column(name = "model_version", length = 100)
     private String modelVersion;
 
+    @Column(name = "image_hash")
+    private Long imageHash;
+
     @Column(name = "analyzed_at", nullable = false)
     private OffsetDateTime analyzedAt;
 
@@ -123,6 +126,14 @@ public class AiAnalysis {
 
     public void setModelVersion(String modelVersion) {
         this.modelVersion = modelVersion;
+    }
+
+    public Long getImageHash() {
+        return imageHash;
+    }
+
+    public void setImageHash(Long imageHash) {
+        this.imageHash = imageHash;
     }
 
     public OffsetDateTime getAnalyzedAt() {

@@ -11,3 +11,4 @@ class AnalysisResult(BaseModel):
     estimated_width_m: Optional[float] = None
     road_risk: str
     model_version: str
+    image_hash: int

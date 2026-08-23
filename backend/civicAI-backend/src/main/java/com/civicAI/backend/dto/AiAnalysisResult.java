@@ -23,6 +23,9 @@ public class AiAnalysisResult {
     @JsonProperty("model_version")
     private String modelVersion;
 
+    @JsonProperty("image_hash")
+    private Long imageHash;
+
     public String getDetectedObject() {
         return detectedObject;
     }
@@ -77,5 +80,13 @@ public class AiAnalysisResult {
 
     public void setModelVersion(String modelVersion) {
         this.modelVersion = modelVersion;
+    }
+
+    public Long getImageHash() {
+        return imageHash;
+    }
+
+    public void setImageHash(Long imageHash) {
+        this.imageHash = imageHash;
     }
 }

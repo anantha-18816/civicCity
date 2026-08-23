@@ -97,6 +97,8 @@ public class ComplaintService {
         response.setLongitude(complaint.getLocation().getX());
         response.setStatus(complaint.getStatus());
         response.setPriority(complaint.getPriority());
+        response.setDuplicateOfId(complaint.getDuplicateOfId());
+        response.setDuplicateScore(complaint.getDuplicateScore());
         response.setCreatedAt(complaint.getCreatedAt());
 
         return response;

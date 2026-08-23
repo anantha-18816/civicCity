@@ -2,7 +2,7 @@ import numpy as np
 import cv2
 
 
-MODEL_VERSION = "cv-heuristic-0.1.0"
+MODEL_VERSION = "cv-heuristic-0.2.0"
 
 _SEVERITY_LOW = "LOW"
 _SEVERITY_MEDIUM = "MEDIUM"
@@ -63,7 +63,28 @@ class PotholeDetector:
             "estimated_width_m": width_m,
             "road_risk": road_risk,
             "model_version": MODEL_VERSION,
+            "image_hash": self.compute_hash(image),
         }
+
+    @staticmethod
+    def compute_hash(image: np.ndarray) -> int:
+        """64-bit average hash of the image for duplicate detection.
+
+        The image is downscaled to 8x8 grayscale; each pixel brighter than
+        the mean sets one bit. Similar photos yield similar hashes, so the
+        Hamming distance between two hashes approximates visual similarity
+        without storing the images themselves.
+        """
+        gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        resized = cv2.resize(gray, (8, 8), interpolation=cv2.INTER_AREA)
+        bits = resized > resized.mean()
+        value = 0
+        for bit in bits.flatten():
+            value = (value << 1) | int(bit)
+        # Reinterpret as signed 64-bit so Java/Jackson can parse it.
+        if value >= 1 << 63:
+            value -= 1 << 64
+        return value
 
     @staticmethod
     def _keep_largest_region(mask: np.ndarray) -> np.ndarray:

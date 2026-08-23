@@ -43,6 +43,12 @@ public class Complaint {
     @Column(nullable = false)
     private Integer priority = 4;
 
+    @Column(name = "duplicate_of_id")
+    private Long duplicateOfId;
+
+    @Column(name = "duplicate_score")
+    private Double duplicateScore;
+
     @Column(name = "created_at", nullable = false)
     private OffsetDateTime createdAt;
 
@@ -140,6 +146,22 @@ public class Complaint {
 
     public void setPriority(Integer priority) {
         this.priority = priority;
+    }
+
+    public Long getDuplicateOfId() {
+        return duplicateOfId;
+    }
+
+    public void setDuplicateOfId(Long duplicateOfId) {
+        this.duplicateOfId = duplicateOfId;
+    }
+
+    public Double getDuplicateScore() {
+        return duplicateScore;
+    }
+
+    public void setDuplicateScore(Double duplicateScore) {
+        this.duplicateScore = duplicateScore;
     }
 
     public OffsetDateTime getCreatedAt() {

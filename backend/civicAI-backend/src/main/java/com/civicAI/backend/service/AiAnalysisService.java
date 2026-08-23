@@ -27,13 +27,16 @@ public class AiAnalysisService {
 
     private final AiAnalysisRepository aiAnalysisRepository;
     private final ComplaintRepository complaintRepository;
+    private final DuplicateDetectionService duplicateDetectionService;
     private final RestClient restClient;
 
     public AiAnalysisService(AiAnalysisRepository aiAnalysisRepository,
                              ComplaintRepository complaintRepository,
+                             DuplicateDetectionService duplicateDetectionService,
                              @Value("${ai-service.url}") String aiServiceUrl) {
         this.aiAnalysisRepository = aiAnalysisRepository;
         this.complaintRepository = complaintRepository;
+        this.duplicateDetectionService = duplicateDetectionService;
         this.restClient = RestClient.builder()
                 .baseUrl(aiServiceUrl)
                 .requestFactory(new SimpleClientHttpRequestFactory())
@@ -68,12 +71,17 @@ public class AiAnalysisService {
         entity.setEstimatedWidthM(result.getEstimatedWidthM());
         entity.setRoadRisk(result.getRoadRisk());
         entity.setModelVersion(result.getModelVersion());
+        entity.setImageHash(result.getImageHash());
         entity.setAnalyzedAt(OffsetDateTime.now());
 
         AiAnalysis saved = aiAnalysisRepository.save(entity);
 
         complaint.setStatus("AI_ANALYZED");
         complaintRepository.save(complaint);
+
+        if (!"NO_ISSUE".equals(result.getDetectedObject())) {
+            duplicateDetectionService.detectDuplicate(complaint, saved.getImageHash());
+        }
 
         return toResponse(saved);
     }
@@ -109,6 +117,7 @@ public class AiAnalysisService {
         response.setEstimatedWidthM(analysis.getEstimatedWidthM());
         response.setRoadRisk(analysis.getRoadRisk());
         response.setModelVersion(analysis.getModelVersion());
+        response.setImageHash(analysis.getImageHash());
         response.setAnalyzedAt(analysis.getAnalyzedAt());
 
         return response;

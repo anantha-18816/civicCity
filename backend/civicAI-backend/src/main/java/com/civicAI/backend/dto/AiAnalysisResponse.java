@@ -13,6 +13,7 @@ public class AiAnalysisResponse {
     private Double estimatedWidthM;
     private String roadRisk;
     private String modelVersion;
+    private Long imageHash;
     private OffsetDateTime analyzedAt;
 
     public Long getId() {
@@ -85,6 +86,14 @@ public class AiAnalysisResponse {
 
     public void setModelVersion(String modelVersion) {
         this.modelVersion = modelVersion;
+    }
+
+    public Long getImageHash() {
+        return imageHash;
+    }
+
+    public void setImageHash(Long imageHash) {
+        this.imageHash = imageHash;
     }
 
     public OffsetDateTime getAnalyzedAt() {

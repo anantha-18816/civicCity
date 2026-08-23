@@ -88,6 +88,10 @@ CREATE TABLE complaints (
 
     priority INTEGER NOT NULL DEFAULT 4,
 
+    duplicate_of_id BIGINT,
+
+    duplicate_score DOUBLE PRECISION,
+
     created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     resolved_at TIMESTAMPTZ,
@@ -103,6 +107,10 @@ CREATE TABLE complaints (
     CONSTRAINT fk_complaint_cluster
         FOREIGN KEY (cluster_id)
         REFERENCES complaint_clusters(id),
+
+    CONSTRAINT fk_complaint_duplicate
+        FOREIGN KEY (duplicate_of_id)
+        REFERENCES complaints(id),
 
     CONSTRAINT chk_complaint_status
         CHECK (
@@ -143,6 +151,8 @@ CREATE TABLE complaint_ai_analysis (
     road_risk VARCHAR(20),
 
     model_version VARCHAR(100),
+
+    image_hash BIGINT,
 
     analyzed_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
