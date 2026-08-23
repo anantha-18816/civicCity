@@ -83,12 +83,12 @@ Priority should consider:
 
 ## Phase 9 - Dashboard
 
-- [ ] Complaint map
-- [ ] Heatmap
-- [ ] Priority complaints
-- [ ] Department statistics
-- [ ] Resolution statistics
-- [ ] AI insights
+- [x] Complaint map
+- [x] Heatmap
+- [x] Priority complaints
+- [x] Department statistics
+- [x] Resolution statistics
+- [x] AI insights
 
 ## Phase 10 - Mobile
 
@@ -109,6 +109,7 @@ Priority should consider:
 - [ ] Monitoring
 - [ ] API documentation
 - [ ] Deployment
+
 
 
 

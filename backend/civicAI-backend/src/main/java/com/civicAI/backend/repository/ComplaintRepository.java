@@ -33,4 +33,6 @@ public interface ComplaintRepository extends JpaRepository<Complaint, Long> {
                                             @Param("limit") int limit);
 
     List<Complaint> findByClusterId(Long clusterId);
+
+    long countByDuplicateOfIdNotNull();
 }
