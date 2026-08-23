@@ -68,7 +68,9 @@ class _AuthGateState extends State<AuthGate> {
           return LoginScreen(onLogin: (name, mail) async {
             await prefs.setString('name', name);
             await prefs.setString('email', mail);
-            setState(() {`n            _prefs = SharedPreferences.getInstance();`n          });
+            setState(() {
+              _prefs = SharedPreferences.getInstance();
+            });
           });
         }
         return HomeShell(
