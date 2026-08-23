@@ -92,12 +92,12 @@ Priority should consider:
 
 ## Phase 10 - Mobile
 
-- [ ] Login
-- [ ] Complaint creation
-- [ ] Camera
-- [ ] GPS
-- [ ] Complaint tracking
-- [ ] Notifications
+- [x] Login
+- [x] Complaint creation
+- [x] Camera
+- [x] GPS
+- [x] Complaint tracking
+- [x] Notifications
 
 ## Phase 11 - Production
 
@@ -109,6 +109,7 @@ Priority should consider:
 - [ ] Monitoring
 - [ ] API documentation
 - [ ] Deployment
+
 
 
 

@@ -22,3 +22,7 @@ venv/
 .env.*
 !.env.example
 backend/civicAI-backend/run.log
+
+.jdk25/
+.pub-cache/
+.tmp/
