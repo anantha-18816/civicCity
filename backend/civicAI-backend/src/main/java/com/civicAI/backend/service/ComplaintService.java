@@ -5,6 +5,7 @@ import com.civicAI.backend.dto.ComplaintResponse;
 import com.civicAI.backend.dto.ComplaintStatusRequest;
 import com.civicAI.backend.entity.Complaint;
 import com.civicAI.backend.exception.ResourceNotFoundException;
+import com.civicAI.backend.exception.InvalidStateException;
 import com.civicAI.backend.repository.ComplaintRepository;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 @Service
@@ -79,6 +81,11 @@ public class ComplaintService {
                     "Invalid status '" + request.getStatus() + "'. Allowed values: " + VALID_STATUSES);
         }
 
+        if (!ALLOWED_TRANSITIONS.getOrDefault(complaint.getStatus(), Set.of()).contains(newStatus)) {
+            throw new InvalidStateException("Illegal status transition from '"
+                    + complaint.getStatus() + "' to '" + newStatus + "'");
+        }
+
         complaint.setStatus(newStatus);
 
         if ("RESOLVED".equals(newStatus)) {
@@ -90,6 +97,13 @@ public class ComplaintService {
 
     private static final Set<String> VALID_STATUSES = Set.of(
             "SUBMITTED", "AI_ANALYZED", "ASSIGNED", "IN_PROGRESS", "RESOLVED", "REJECTED"
+    );
+
+    private static final Map<String, Set<String>> ALLOWED_TRANSITIONS = Map.of(
+            "SUBMITTED", Set.of("AI_ANALYZED", "REJECTED"),
+            "AI_ANALYZED", Set.of("ASSIGNED", "IN_PROGRESS", "REJECTED"),
+            "ASSIGNED", Set.of("IN_PROGRESS", "RESOLVED", "REJECTED"),
+            "IN_PROGRESS", Set.of("RESOLVED", "REJECTED")
     );
 
     private ComplaintResponse toResponse(Complaint complaint) {

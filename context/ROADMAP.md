@@ -75,11 +75,11 @@ Priority should consider:
 
 ## Phase 8 - Resolution
 
-- [ ] Status transitions
-- [ ] Resolution records
-- [ ] Before/after images
-- [ ] Resolution time
-- [ ] Citizen verification
+- [x] Status transitions
+- [x] Resolution records
+- [x] Before/after images
+- [x] Resolution time
+- [x] Citizen verification
 
 ## Phase 9 - Dashboard
 
@@ -109,6 +109,7 @@ Priority should consider:
 - [ ] Monitoring
 - [ ] API documentation
 - [ ] Deployment
+
 
 
 

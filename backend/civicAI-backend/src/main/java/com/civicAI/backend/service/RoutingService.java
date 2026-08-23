@@ -4,6 +4,7 @@ import com.civicAI.backend.dto.WorkloadResponse;
 import com.civicAI.backend.entity.Complaint;
 import com.civicAI.backend.entity.Department;
 import com.civicAI.backend.exception.ResourceNotFoundException;
+import com.civicAI.backend.exception.InvalidStateException;
 import com.civicAI.backend.repository.ComplaintRepository;
 import com.civicAI.backend.repository.DepartmentRepository;
 import org.slf4j.Logger;
@@ -86,7 +87,7 @@ public class RoutingService {
                         "Department not found with id: " + departmentId));
 
         if (!OPEN_STATUSES.contains(complaint.getStatus())) {
-            throw new IllegalStateException(
+            throw new InvalidStateException(
                     "Complaint " + complaintId + " cannot be assigned in status "
                             + complaint.getStatus());
         }
@@ -129,3 +130,4 @@ public class RoutingService {
                         "Configured department code '" + code + "' does not exist"));
     }
 }
+
