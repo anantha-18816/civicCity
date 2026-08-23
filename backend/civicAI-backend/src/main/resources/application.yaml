@@ -32,3 +32,15 @@ duplicate:
 cluster:
   radius-m: 150
   dense-report-threshold: 5
+
+priority:
+  max-report-bonus: 20
+  report-bonus-step: 4
+  grace-days: 3
+  daily-age-bonus: 1.5
+  max-age-bonus: 15
+  location-bonus: 10
+  center-radius-m: 5000
+  road-issue-types: POTHOLE,ROAD_DAMAGE
+  road-importance-bonus: 8
+  refresh-cron: "0 0 */6 * * *"

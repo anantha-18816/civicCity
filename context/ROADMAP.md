@@ -56,6 +56,8 @@
 
 ## Phase 6 - Priority Engine
 
+- [x] Implemented: weighted scoring across all six factors
+
 Priority should consider:
 - AI severity
 - number of reports
@@ -107,5 +109,6 @@ Priority should consider:
 - [ ] Monitoring
 - [ ] API documentation
 - [ ] Deployment
+
 
 
