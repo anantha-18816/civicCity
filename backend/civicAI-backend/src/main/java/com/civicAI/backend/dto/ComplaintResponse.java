@@ -16,6 +16,7 @@ public class ComplaintResponse {
     private Long duplicateOfId;
     private Double duplicateScore;
     private Long clusterId;
+    private Long departmentId;
     private OffsetDateTime createdAt;
 
     public Long getId() {
@@ -112,6 +113,14 @@ public class ComplaintResponse {
 
     public void setClusterId(Long clusterId) {
         this.clusterId = clusterId;
+    }
+
+    public Long getDepartmentId() {
+        return departmentId;
+    }
+
+    public void setDepartmentId(Long departmentId) {
+        this.departmentId = departmentId;
     }
 
     public OffsetDateTime getCreatedAt() {

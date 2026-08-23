@@ -68,10 +68,10 @@ Priority should consider:
 
 ## Phase 7 - Department Routing
 
-- [ ] Department mapping
-- [ ] Automatic assignment
-- [ ] Assignment API
-- [ ] Department workload
+- [x] Department mapping
+- [x] Automatic assignment
+- [x] Assignment API
+- [x] Department workload
 
 ## Phase 8 - Resolution
 
@@ -109,6 +109,7 @@ Priority should consider:
 - [ ] Monitoring
 - [ ] API documentation
 - [ ] Deployment
+
 
 
 

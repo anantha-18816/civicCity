@@ -20,12 +20,19 @@ import java.util.Set;
 public class ComplaintService {
 
     private final ComplaintRepository complaintRepository;
+    private final RoutingService routingService;
 
     private final GeometryFactory geometryFactory =
             new GeometryFactory(new PrecisionModel(), 4326);
 
-    public ComplaintService(ComplaintRepository complaintRepository) {
+    public ComplaintService(ComplaintRepository complaintRepository,
+                            RoutingService routingService) {
         this.complaintRepository = complaintRepository;
+        this.routingService = routingService;
+    }
+
+    public ComplaintResponse assignComplaint(Long id, Long departmentId) {
+        return toResponse(routingService.assignManually(id, departmentId));
     }
 
     public ComplaintResponse createComplaint(ComplaintRequest request) {
@@ -100,6 +107,7 @@ public class ComplaintService {
         response.setDuplicateOfId(complaint.getDuplicateOfId());
         response.setDuplicateScore(complaint.getDuplicateScore());
         response.setClusterId(complaint.getClusterId());
+        response.setDepartmentId(complaint.getDepartmentId());
         response.setCreatedAt(complaint.getCreatedAt());
 
         return response;

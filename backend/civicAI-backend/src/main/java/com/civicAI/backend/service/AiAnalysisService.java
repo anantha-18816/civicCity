@@ -30,6 +30,7 @@ public class AiAnalysisService {
     private final DuplicateDetectionService duplicateDetectionService;
     private final ClusterService clusterService;
     private final PriorityService priorityService;
+    private final RoutingService routingService;
     private final RestClient restClient;
 
     public AiAnalysisService(AiAnalysisRepository aiAnalysisRepository,
@@ -37,12 +38,14 @@ public class AiAnalysisService {
                              DuplicateDetectionService duplicateDetectionService,
                              ClusterService clusterService,
                              PriorityService priorityService,
+                             RoutingService routingService,
                              @Value("${ai-service.url}") String aiServiceUrl) {
         this.aiAnalysisRepository = aiAnalysisRepository;
         this.complaintRepository = complaintRepository;
         this.duplicateDetectionService = duplicateDetectionService;
         this.clusterService = clusterService;
         this.priorityService = priorityService;
+        this.routingService = routingService;
         this.restClient = RestClient.builder()
                 .baseUrl(aiServiceUrl)
                 .requestFactory(new SimpleClientHttpRequestFactory())
@@ -94,6 +97,8 @@ public class AiAnalysisService {
         PriorityService.ScoredPriority scored = priorityService.compute(complaint);
         complaint.setPriority(scored.priority());
         complaintRepository.save(complaint);
+
+        routingService.autoAssign(complaint);
 
         return toResponse(saved);
     }

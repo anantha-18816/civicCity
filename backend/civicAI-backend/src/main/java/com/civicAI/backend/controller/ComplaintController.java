@@ -1,5 +1,6 @@
 package com.civicAI.backend.controller;
 
+import com.civicAI.backend.dto.AssignRequest;
 import com.civicAI.backend.dto.ComplaintRequest;
 import com.civicAI.backend.dto.ComplaintResponse;
 import com.civicAI.backend.dto.ComplaintStatusRequest;
@@ -47,5 +48,11 @@ public class ComplaintController {
     public ComplaintResponse updateComplaintStatus(@PathVariable Long id,
                                                    @Valid @RequestBody ComplaintStatusRequest request) {
         return complaintService.updateComplaintStatus(id, request);
+    }
+
+    @PostMapping("/{id}/assign")
+    public ComplaintResponse assignComplaint(@PathVariable Long id,
+                                             @Valid @RequestBody AssignRequest request) {
+        return complaintService.assignComplaint(id, request.getDepartmentId());
     }
 }

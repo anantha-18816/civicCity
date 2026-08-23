@@ -44,3 +44,7 @@ priority:
   road-issue-types: POTHOLE,ROAD_DAMAGE
   road-importance-bonus: 8
   refresh-cron: "0 0 */6 * * *"
+
+routing:
+  mappings: "POTHOLE:ROADS,ROAD_DAMAGE:ROADS,GARBAGE:SANITATION,STREETLIGHT:LIGHTING,WATER_LOGGING:DRAINAGE"
+  default-department-code: ROADS
