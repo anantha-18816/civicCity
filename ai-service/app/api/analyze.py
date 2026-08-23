@@ -1,4 +1,5 @@
 from fastapi import APIRouter, File, HTTPException, UploadFile, status
+from starlette.concurrency import run_in_threadpool
 
 from app.schemas.analysis import AnalysisResult
 from app.services.detector import PotholeDetector
@@ -24,4 +25,5 @@ async def analyze_image(file: UploadFile = File(default=None)):
     if image is None:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "Could not decode image")
 
-    return AnalysisResult(**detector.analyze(image))
+    result = await run_in_threadpool(detector.analyze, image)
+    return AnalysisResult(**result)

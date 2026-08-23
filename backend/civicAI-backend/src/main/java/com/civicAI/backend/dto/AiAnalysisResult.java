@@ -1,13 +1,26 @@
 package com.civicAI.backend.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class AiAnalysisResult {
 
+    @JsonProperty("detected_object")
     private String detectedObject;
+
     private String severity;
+
     private Double confidence;
+
+    @JsonProperty("estimated_length_m")
     private Double estimatedLengthM;
+
+    @JsonProperty("estimated_width_m")
     private Double estimatedWidthM;
+
+    @JsonProperty("road_risk")
     private String roadRisk;
+
+    @JsonProperty("model_version")
     private String modelVersion;
 
     public String getDetectedObject() {

@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.MediaType;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -19,6 +20,7 @@ import org.springframework.web.client.RestClientException;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.OffsetDateTime;
 
 @Service
 public class AiAnalysisService {
@@ -32,7 +34,10 @@ public class AiAnalysisService {
                              @Value("${ai-service.url}") String aiServiceUrl) {
         this.aiAnalysisRepository = aiAnalysisRepository;
         this.complaintRepository = complaintRepository;
-        this.restClient = RestClient.builder().baseUrl(aiServiceUrl).build();
+        this.restClient = RestClient.builder()
+                .baseUrl(aiServiceUrl)
+                .requestFactory(new SimpleClientHttpRequestFactory())
+                .build();
     }
 
     public AiAnalysisResponse analyzeComplaint(Long complaintId, MultipartFile image) {
@@ -53,7 +58,8 @@ public class AiAnalysisService {
             throw new IllegalStateException("Failed to read uploaded image", e);
         }
 
-        AiAnalysis entity = new AiAnalysis();
+        AiAnalysis entity = aiAnalysisRepository.findByComplaintId(complaintId)
+                .orElseGet(AiAnalysis::new);
         entity.setComplaintId(complaintId);
         entity.setDetectedObject(result.getDetectedObject());
         entity.setSeverity(result.getSeverity());
@@ -62,6 +68,7 @@ public class AiAnalysisService {
         entity.setEstimatedWidthM(result.getEstimatedWidthM());
         entity.setRoadRisk(result.getRoadRisk());
         entity.setModelVersion(result.getModelVersion());
+        entity.setAnalyzedAt(OffsetDateTime.now());
 
         AiAnalysis saved = aiAnalysisRepository.save(entity);
 
@@ -79,8 +86,8 @@ public class AiAnalysisService {
     }
 
     private MultiValueMap<String, Object> toMultipart(MultipartFile image) throws IOException {
-        MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
         String filename = image.getOriginalFilename() != null ? image.getOriginalFilename() : "image.jpg";
+        MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
         body.add("file", new HttpEntity<>(new ByteArrayResource(image.getBytes()) {
             @Override
             public String getFilename() {

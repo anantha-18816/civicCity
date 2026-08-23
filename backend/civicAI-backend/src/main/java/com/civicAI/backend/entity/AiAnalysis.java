@@ -6,6 +6,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 
 import java.time.OffsetDateTime;
@@ -49,6 +50,11 @@ public class AiAnalysis {
         if (analyzedAt == null) {
             analyzedAt = OffsetDateTime.now();
         }
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        analyzedAt = OffsetDateTime.now();
     }
 
     public Long getId() {
@@ -121,5 +127,9 @@ public class AiAnalysis {
 
     public OffsetDateTime getAnalyzedAt() {
         return analyzedAt;
+    }
+
+    public void setAnalyzedAt(OffsetDateTime analyzedAt) {
+        this.analyzedAt = analyzedAt;
     }
 }
