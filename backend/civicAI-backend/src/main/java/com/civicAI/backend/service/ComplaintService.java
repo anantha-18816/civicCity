@@ -99,6 +99,7 @@ public class ComplaintService {
         response.setPriority(complaint.getPriority());
         response.setDuplicateOfId(complaint.getDuplicateOfId());
         response.setDuplicateScore(complaint.getDuplicateScore());
+        response.setClusterId(complaint.getClusterId());
         response.setCreatedAt(complaint.getCreatedAt());
 
         return response;

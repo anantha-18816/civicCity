@@ -31,4 +31,6 @@ public interface ComplaintRepository extends JpaRepository<Complaint, Long> {
                                             @Param("longitude") double longitude,
                                             @Param("radiusM") double radiusM,
                                             @Param("limit") int limit);
+
+    List<Complaint> findByClusterId(Long clusterId);
 }

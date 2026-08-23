@@ -28,15 +28,18 @@ public class AiAnalysisService {
     private final AiAnalysisRepository aiAnalysisRepository;
     private final ComplaintRepository complaintRepository;
     private final DuplicateDetectionService duplicateDetectionService;
+    private final ClusterService clusterService;
     private final RestClient restClient;
 
     public AiAnalysisService(AiAnalysisRepository aiAnalysisRepository,
                              ComplaintRepository complaintRepository,
                              DuplicateDetectionService duplicateDetectionService,
+                             ClusterService clusterService,
                              @Value("${ai-service.url}") String aiServiceUrl) {
         this.aiAnalysisRepository = aiAnalysisRepository;
         this.complaintRepository = complaintRepository;
         this.duplicateDetectionService = duplicateDetectionService;
+        this.clusterService = clusterService;
         this.restClient = RestClient.builder()
                 .baseUrl(aiServiceUrl)
                 .requestFactory(new SimpleClientHttpRequestFactory())
@@ -82,6 +85,8 @@ public class AiAnalysisService {
         if (!"NO_ISSUE".equals(result.getDetectedObject())) {
             duplicateDetectionService.detectDuplicate(complaint, saved.getImageHash());
         }
+
+        clusterService.assignCluster(complaint);
 
         return toResponse(saved);
     }

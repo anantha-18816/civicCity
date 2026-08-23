@@ -48,11 +48,11 @@
 
 ## Phase 5 - Complaint Clustering
 
-- [ ] Geographic clustering
-- [ ] Issue-type clustering
-- [ ] Complaint cluster creation
-- [ ] Cluster severity
-- [ ] Cluster priority
+- [x] Geographic clustering
+- [x] Issue-type clustering
+- [x] Complaint cluster creation
+- [x] Cluster severity
+- [x] Cluster priority
 
 ## Phase 6 - Priority Engine
 
@@ -107,4 +107,5 @@ Priority should consider:
 - [ ] Monitoring
 - [ ] API documentation
 - [ ] Deployment
+
 

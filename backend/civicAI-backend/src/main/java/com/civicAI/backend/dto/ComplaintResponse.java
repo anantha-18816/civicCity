@@ -15,6 +15,7 @@ public class ComplaintResponse {
     private Integer priority;
     private Long duplicateOfId;
     private Double duplicateScore;
+    private Long clusterId;
     private OffsetDateTime createdAt;
 
     public Long getId() {
@@ -103,6 +104,14 @@ public class ComplaintResponse {
 
     public void setDuplicateScore(Double duplicateScore) {
         this.duplicateScore = duplicateScore;
+    }
+
+    public Long getClusterId() {
+        return clusterId;
+    }
+
+    public void setClusterId(Long clusterId) {
+        this.clusterId = clusterId;
     }
 
     public OffsetDateTime getCreatedAt() {
