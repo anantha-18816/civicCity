@@ -5,6 +5,9 @@ on:
     branches: [main]
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   compose-stack:
     runs-on: ubuntu-latest
@@ -96,4 +99,4 @@ jobs:
           git config user.name "civicai-ci"
           git add -f e2e-last-run.log
           git commit -m "[skip actions] ci: e2e diagnostics" || echo "nothing to commit"
-          git push -f "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" HEAD:main || echo "push failed"
+          git push -q "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" HEAD:main || echo "push failed"
