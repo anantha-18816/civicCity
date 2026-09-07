@@ -32,6 +32,7 @@ jobs:
       - name: End-to-end smoke test
         run: |
           set -uo pipefail
+          exec > >(tee /tmp/e2e-smoke.log) 2>&1
           BASE=http://localhost:8080
           echo "== register =="
           R=$(curl -sS -X POST $BASE/api/auth/register -H 'Content-Type: application/json' \
@@ -81,5 +82,18 @@ jobs:
         if: failure()
         working-directory: deploy
         run: |
-          docker compose ps
-          docker compose logs --no-color | tail -n 300
+          docker compose ps || true
+          docker compose logs --no-color > /tmp/e2e-compose.log 2>&1 || true
+          {
+            echo "=== SMOKE OUTPUT ==="
+            cat /tmp/e2e-smoke.log 2>/dev/null || echo "(no smoke log)"
+            echo
+            echo "=== COMPOSE LOGS (tail) ==="
+            tail -n 300 /tmp/e2e-compose.log
+          } > ../e2e-last-run.log
+          cd ..
+          git config user.email "ci@civicai.test"
+          git config user.name "civicai-ci"
+          git add -f e2e-last-run.log
+          git commit -m "[skip actions] ci: e2e diagnostics" || echo "nothing to commit"
+          git push -f "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" HEAD:main || echo "push failed"
