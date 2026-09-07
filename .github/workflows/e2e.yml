@@ -42,12 +42,12 @@ jobs:
               -d "{\"name\":\"e2e\",\"email\":\"e2e-$RANDOM@example.com\",\"password\":\"secret123\"}")
           echo "register body: $R"
           TOKEN=$(echo "$R" | python3 -c 'import sys,json;print(json.load(sys.stdin)["token"])')
-          UID=$(echo "$R" | python3 -c 'import sys,json;print(json.load(sys.stdin)["userId"])')
-          echo "registered citizen userId=$UID token=${TOKEN:0:12}..."
+          UID_VALUE=$(echo "$R" | python3 -c 'import sys,json;print(json.load(sys.stdin)["userId"])')
+          echo "registered citizen userId=$UID_VALUE token=${TOKEN:0:12}..."
 
           echo "== create complaint =="
           C=$(curl -sS -X POST $BASE/api/complaints -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' \
-              -d "{\"userId\":$UID,\"issueType\":\"POTHOLE\",\"title\":\"e2e pothole\",\"description\":\"compose e2e\",\"latitude\":17.385,\"longitude\":78.4867}")
+              -d "{\"userId\":$UID_VALUE,\"issueType\":\"POTHOLE\",\"title\":\"e2e pothole\",\"description\":\"compose e2e\",\"latitude\":17.385,\"longitude\":78.4867}")
           echo "create body: $C"
           CID=$(echo "$C" | python3 -c 'import sys,json;print(json.load(sys.stdin)["id"])')
           echo "created complaint id=$CID"
