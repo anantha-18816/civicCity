@@ -31,38 +31,47 @@ jobs:
 
       - name: End-to-end smoke test
         run: |
-          set -euo pipefail
+          set -uo pipefail
           BASE=http://localhost:8080
-
-          R=$(curl -fsS -X POST $BASE/api/auth/register -H 'Content-Type: application/json' \
+          echo "== register =="
+          R=$(curl -sS -X POST $BASE/api/auth/register -H 'Content-Type: application/json' \
               -d "{\"name\":\"e2e\",\"email\":\"e2e-$RANDOM@example.com\",\"password\":\"secret123\"}")
+          echo "register body: $R"
           TOKEN=$(echo "$R" | python3 -c 'import sys,json;print(json.load(sys.stdin)["token"])')
           UID=$(echo "$R" | python3 -c 'import sys,json;print(json.load(sys.stdin)["userId"])')
-          echo "registered citizen userId=$UID"
+          echo "registered citizen userId=$UID token=${TOKEN:0:12}..."
 
-          CID=$(curl -fsS -X POST $BASE/api/complaints -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' \
-              -d "{\"userId\":$UID,\"issueType\":\"POTHOLE\",\"title\":\"e2e pothole\",\"description\":\"compose e2e\",\"latitude\":17.385,\"longitude\":78.4867}" \
-              | python3 -c 'import sys,json;print(json.load(sys.stdin)["id"])')
+          echo "== create complaint =="
+          C=$(curl -sS -X POST $BASE/api/complaints -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' \
+              -d "{\"userId\":$UID,\"issueType\":\"POTHOLE\",\"title\":\"e2e pothole\",\"description\":\"compose e2e\",\"latitude\":17.385,\"longitude\":78.4867}")
+          echo "create body: $C"
+          CID=$(echo "$C" | python3 -c 'import sys,json;print(json.load(sys.stdin)["id"])')
           echo "created complaint id=$CID"
 
+          echo "== AI analysis =="
           printf '%s' '/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAMCAgMCAgMDAwMEAwMEBQgFBQQEBQoHBwYIDAoMDAsKCwsNDhIQDQ4RDgsLEBYQERMUFRUVDA8XGBYUGBIUFRT/2wBDAQMEBAUEBQkFBQkUDQsNFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBT/wAARCABIAGADASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD1OiiiucAorA1TxFe2F9LBDo1xdxpjEybsNkA9lPrjr2q1oer3Oq+f9o06Ww8vbt83Pz5znGQOmP1oA1aKKKACiiigAooooAKKKKACiiigAooooAKKK8G+M37UNt4E1SbQ/Dtrb6vq0Py3FxM5NvbSBhmMhcGRsbgcMoU45JDKAD3mivjX/hsvxr/0C9B/8B5//j1e1fBP9ofT/ilIdKv4I9I8QogZYBJmO7AXLtETyCCGPlnJC8gthtrsOx7BRRRSEFFFFABRRRQAUUUUAFfnd8YfDep+GPiT4gt9US482a8muop7gKGuYnkYrLlAFO7vtAAORgEED9EawPF/gPw/49sVtNf0q31KJP8AVtICskeSpOyRSGTO1c7SMgYORTGfm3XsH7K2g6hqXxe03ULa1klsdNSaS7uAMJEHhkRMk9yzAADk4JxhSR9Jf8MyfDT/AKFv/wAn7n/45Xe+G/C+keENLTTtF0+302zTB8uBNu4hQu5j1ZiFGWYknHJNFwualFFFIQUUUUAFFFFABRRRQAUUUUAFFFFAGBqln4glvpXsb63htTjYjqCRwM/wHvnvWppcd3FYxJfSpNdDO90GAeTjsO2O1W6KACiiigAooooAKKKKACiiigAooooAKKKKACiiigD/2Q==' | base64 -d > /tmp/road.jpg
-          ls -la /tmp/road.jpg
+          echo "image bytes: $(wc -c < /tmp/road.jpg)"
+          AN=$(curl -sS -X POST $BASE/api/complaints/$CID/analysis -H "Authorization: Bearer $TOKEN" -F image=@/tmp/road.jpg)
+          echo "analysis body: $AN"
+          echo "$AN" | python3 -c 'import sys,json; d=json.load(sys.stdin); assert d["detectedObject"] in ("POTHOLE","NO_ISSUE"), d["detectedObject"]; print("AI OK: detected_object=" + d["detectedObject"] + " confidence=" + str(d["confidence"]))'
 
-          AN=$(curl -fsS -X POST $BASE/api/complaints/$CID/analysis -H "Authorization: Bearer $TOKEN" -F image=@/tmp/road.jpg)
-          echo "$AN" | python3 -c 'import sys,json; d=json.load(sys.stdin); assert d["detectedObject"] in ("POTHOLE","NO_ISSUE"), d; print("AI OK: detected_object=" + d["detectedObject"] + " confidence=" + str(d["confidence"]))'
-
-          ST=$(curl -fsS $BASE/api/complaints/$CID -H "Authorization: Bearer $TOKEN" \
+          echo "== verify status =="
+          ST=$(curl -sS $BASE/api/complaints/$CID -H "Authorization: Bearer $TOKEN" \
               | python3 -c 'import sys,json;print(json.load(sys.stdin)["status"])')
-          [ "$ST" = "AI_ANALYZED" ] && echo "status now AI_ANALYZED OK"
+          echo "complaint status: $ST"
+          [ "$ST" = "AI_ANALYZED" ] && echo "status AI_ANALYZED OK"
 
-          curl -fsS -o /tmp/dashboard.html $BASE/
-          echo "dashboard served: $(wc -c < /tmp/dashboard.html) bytes"
+          echo "== dashboard via proxy =="
+          curl -sS -o /tmp/dashboard.html -w 'dashboard http:%{http_code}\n' $BASE/
+          echo "dashboard body: $(head -c 200 /tmp/dashboard.html)"
 
-          curl -fsS -X POST $BASE/api/auth/login -H 'Content-Type: application/json' \
-              -d '{"email":"officer@civicai.test","password":"officer123"}' \
-              | python3 -c 'import sys,json; d=json.load(sys.stdin); assert d["role"]=="OFFICER"; print("officer login OK")'
+          echo "== officer login =="
+          OL=$(curl -sS -X POST $BASE/api/auth/login -H 'Content-Type: application/json' \
+              -d '{"email":"officer@civicai.test","password":"officer123"}')
+          echo "$OL" | python3 -c 'import sys,json; d=json.load(sys.stdin); assert d["role"]=="OFFICER", d; print("officer login OK")'
 
-          curl -fsS $BASE/actuator/health >/dev/null && echo "actuator health OK"
+          echo "== actuator =="
+          curl -sS $BASE/actuator/health && echo ""
 
           echo "======================================"
           echo "E2E PASSED - full stack operational"
@@ -71,4 +80,6 @@ jobs:
       - name: Collect logs on failure
         if: failure()
         working-directory: deploy
-        run: docker compose logs --no-color | tail -n 200
+        run: |
+          docker compose ps
+          docker compose logs --no-color | tail -n 300
