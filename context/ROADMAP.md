@@ -119,6 +119,7 @@ Priority should consider:
 - [x] Priority queue with scores
 - [x] Department workload by priority
 - [x] Complaint register table
+- [x] Complaint detail modal with officer actions (status, assign, mark resolved)
 
 
 

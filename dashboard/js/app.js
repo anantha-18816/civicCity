@@ -57,6 +57,90 @@
     t._h = setTimeout(function () { t.className = "toast hidden"; }, 3200);
   }
 
+  /* ---------------- officer actions ---------------- */
+
+  function openModal(body) {
+    $("#modal-body").innerHTML = body;
+    $("#modal").classList.remove("hidden");
+  }
+  function closeModal() { $("#modal").classList.add("hidden"); }
+  $("#modal-close").addEventListener("click", closeModal);
+  $("#modal").addEventListener("click", function (e) { if (e.target === $("#modal")) closeModal(); });
+
+  var VALID_STATUS = ["SUBMITTED", "AI_ANALYZED", "ASSIGNED", "IN_PROGRESS", "RESOLVED", "REJECTED"];
+
+  function officerAllowed() {
+    return state.who && (state.who.role === "OFFICER" || state.who.role === "ADMIN");
+  }
+
+  function complaintDetail(id) {
+    var dept = state.depts || [];
+    Promise.all([
+      api("/complaints/" + id),
+      api("/complaints/" + id + "/resolution").then(function (r) { return r; }).catch(function () { return null; }),
+    ]).then(function (d) {
+      var c = d[0], res = d[1];
+      var dname = dept.find(function (x) { return x.id === c.departmentId; });
+      var canAssign = officerAllowed() && (!c.departmentId || c.status === "SUBMITTED");
+      var canStatus = officerAllowed() && c.status !== "RESOLVED" && c.status !== "REJECTED";
+
+      openModal(
+        '<h3 style="margin-bottom:4px">#' + c.id + " · " + esc(c.title) + "</h3>" +
+        '<span class="chip" style="color:' + statusColor(c.status) + ";background:" + statusColor(c.status) + "1f;border-color:" + statusColor(c.status) + "55\">" + esc(c.status).replace(/_/g, " ") + "</span>" +
+        '<div class="muted small" style="margin-top:6px">' + esc(c.description || "") + "</div>" +
+        '<div style="margin-top:14px">' +
+        '<div class="row"><span class="muted">Issue type</span><b>' + esc(c.issueType) + "</b></div>" +
+        '<div class="row"><span class="muted">Priority</span><b>P' + (c.priority == null ? "—" : c.priority) + "</b></div>" +
+        '<div class="row"><span class="muted">Department</span><b>' + (dname ? dname.name + " (" + dname.code + ")" : (c.departmentId || "Unassigned")) + "</b></div>" +
+        '<div class="row"><span class="muted">Submitted</span><b>' + esc(fmtDate(c.createdAt)) + "</b></div>" +
+        (c.duplicateOfId ? '<div class="row"><span class="muted">Duplicate of</span><b>#' + c.duplicateOfId + (c.duplicateScore != null ? " (" + Math.round(c.duplicateScore * 100) + "%)" : "") + "</b></div>" : "") +
+        '<div class="row"><span class="muted">Coordinates</span><b>' + c.latitude.toFixed(5) + ", " + c.longitude.toFixed(5) + "</b></div>" +
+        "</div>" +
+        (res ? ("<div class='row' style='margin-top:12px'><span class='muted'>Resolution</span><b>" + (res.verificationStatus || "submitted") + "</b></div>") : "") +
+
+        (canStatus ? '<div class="modal-field"><label>Update status</label><div class="modal-actions">' +
+          VALID_STATUS.filter(function (s) { return s !== c.status; }).map(function (s) {
+            return '<button class="btn-secondary" onclick="window.__civicAI.setStatus(' + c.id + ",''" + s + "''" + ')">' + s.replace(/_/g, " ") + "</button>";
+          }).join("") +
+          "</div></div>" : "") +
+
+        (canAssign ? '<div class="modal-field"><label>Assign to department</label>' +
+          '<select id="assign-select">' + dept.map(function (x) { return "<option value='" + x.id + "'>" + esc(x.name) + "</option>"; }).join("") + "</select>" +
+          '<button class="btn-secondary" style="margin-top:10px" onclick="window.__civicAI.assign(' + c.id + ')">Assign</button></div>' : "") +
+
+        (officerAllowed() && c.status === "ASSIGNED" ? '<div class="modal-field"><label>Submit resolved (marks IN_PROGRESS &gt; RESOLVED)</label>' +
+          '<input id="res-note" placeholder="Resolution note / outcome"><button class="btn-secondary" style="margin-top:10px" onclick="window.__civicAI.submitResolution(' + c.id + ')">Mark resolved</button></div>' : "")
+      );
+    }).catch(function (e) { toast("Load failed: " + e.message, "error"); });
+  }
+
+  function setStatus(id, status) {
+    api("/complaints/" + id + "/status", { method: "PATCH", body: JSON.stringify({ status: status }) })
+      .then(function () { closeModal(); toast("Status → " + status.replace(/_/g, " "), "ok"); goto(state.currentView); })
+      .catch(function (e) { toast("Update failed: " + e.message, "error"); });
+  }
+
+  function assign(id) {
+    var sel = $("#assign-select").value;
+    api("/complaints/" + id + "/assign", { method: "POST", body: JSON.stringify({ departmentId: Number(sel) }) })
+      .then(function () { closeModal(); toast("Assigned", "ok"); goto(state.currentView); })
+      .catch(function (e) { toast("Assign failed: " + e.message, "error"); });
+  }
+
+  function submitResolution(id) {
+    var note = ($("#res-note") || {}).value || "";
+    api("/complaints/" + id + "/resolution", { method: "POST", body: JSON.stringify({ notes: note }) })
+      .then(function () { closeModal(); toast("Marked resolved", "ok"); goto(state.currentView); })
+      .catch(function (e) { toast("Failed: " + e.message, "error"); });
+  }
+
+  window.__civicAI = {
+    setStatus: setStatus,
+    assign: assign,
+    submitResolution: submitResolution,
+    open: complaintDetail,
+  };
+
   function statusColor(s) { return COLORS.status[s] || COLORS.muted; }
   function prioColor(p) { return COLORS.priority[p] || COLORS.muted; }
   function fmt(num) { return num == null ? "—" : Number(num).toLocaleString(); }
@@ -236,6 +320,7 @@
         }
         L.marker([p.latitude, p.longitude], { icon: icons[c] })
           .addTo(map)
+          .on("click", function () { complaintDetail(p.id); })
           .bindPopup("<b>" + esc(p.issueType) + "</b><br>" + esc(p.status) +
             "<br>P" + (p.priority == null ? "—" : p.priority) +
             "<br>#<b>" + p.id + "</b> " + esc(p.severity || ""));
@@ -325,15 +410,15 @@
 
   /* ---------------- complaints ---------------- */
 
-  function renderComplaints() {
+  function renderMyComplaints() {
     var el = $("#view-complaints");
-    el.innerHTML = '<div class="card title-card"><h2>Complaints</h2><p class="muted small">Full register, newest first.</p></div>';
+    el.innerHTML = '<div class="card title-card"><h2>Complaints</h2><p class="muted small">Full register, newest first. Click a row for officer actions.</p></div>';
     api("/complaints").then(function (list) {
       list.sort(function (a, b) { return new Date(b.createdAt) - new Date(a.createdAt); });
       el.insertAdjacentHTML("beforeend", '<div class="card"><div class="table-wrap"><table><thead><tr>' +
         "<th>ID</th><th>Title</th><th>Issue</th><th>Status</th><th>Priority</th><th>Department</th><th>Submitted</th></tr></thead><tbody>" +
         list.map(function (c) {
-          return "<tr>" +
+          return "<tr style='cursor:pointer' onclick='window.__civicAI.open(" + c.id + ")'>" +
             "<td>#" + c.id + "</td>" +
             "<td><b>" + esc(c.title) + "</b>" + (c.duplicateOfId ? '<div class="muted small">dup of #' + c.duplicateOfId + "</div>" : "") + "</td>" +
             "<td>" + esc(c.issueType) + "</td>" +
@@ -344,6 +429,15 @@
             "</tr>";
         }).join("") + "</tbody></table></div></div>");
     }).catch(function (e) { el.insertAdjacentHTML("beforeend", '<div class="card">Failed: ' + esc(e.message) + "</div>"); });
+  }
+
+  function renderComplaints() {
+    ensureDepts().then(renderMyComplaints);
+  }
+
+  function ensureDepts() {
+    if (state.depts) return Promise.resolve();
+    return api("/departments").then(function (d) { state.depts = d; }).catch(function () { state.depts = []; });
   }
 
   /* ---------------- boot ---------------- */
