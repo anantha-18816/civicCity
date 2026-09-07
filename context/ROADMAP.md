@@ -108,7 +108,7 @@ Priority should consider:
 - [x] Logging
 - [x] Monitoring
 - [x] API documentation
-- [ ] Deployment
+- [x] Deployment
 
 ## Phase 12 - Admin Dashboard
 
