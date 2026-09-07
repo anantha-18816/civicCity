@@ -3,6 +3,8 @@
 -- PostgreSQL + PostGIS
 -- ==========================================
 
+CREATE EXTENSION IF NOT EXISTS postgis;
+
 -- =========================
 -- USERS
 -- =========================
