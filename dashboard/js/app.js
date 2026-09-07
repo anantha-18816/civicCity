@@ -2,7 +2,14 @@
 (function () {
   "use strict";
 
-  var API_BASE = localStorage.getItem("civicai.api") || "http://localhost:8080/api";
+  var DEFAULT_API = (function () {
+    var port = window.location.port;
+    if (port === "" || port === "80" || port === "443" || port === "8080") {
+      return window.location.origin + "/api";
+    }
+    return "http://localhost:8080/api";
+  })();
+  var API_BASE = localStorage.getItem("civicai.api") || DEFAULT_API;
 
   var COLORS = {
     bg: { top: "#0b1220", bottom: "#111c2e", card: "#16233a", border: "#24344f" },
