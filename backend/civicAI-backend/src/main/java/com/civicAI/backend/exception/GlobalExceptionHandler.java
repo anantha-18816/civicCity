@@ -64,6 +64,13 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(errorBody(HttpStatus.BAD_REQUEST, "Malformed request body"));
     }
 
+    @ExceptionHandler(org.springframework.web.multipart.MaxUploadSizeExceededException.class)
+    public ResponseEntity<Map<String, Object>> handleUploadTooLarge(
+            org.springframework.web.multipart.MaxUploadSizeExceededException ex) {
+        return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE)
+                .body(errorBody(HttpStatus.PAYLOAD_TOO_LARGE, "Image too large (max 10MB)"));
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, Object>> handleGeneric(Exception ex) {
         log.error("Unhandled exception", ex);
