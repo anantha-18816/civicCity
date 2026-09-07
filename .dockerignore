@@ -1,0 +1,14 @@
+.git
+.github
+.jdk25
+.pub-cache
+.tmp
+backend
+ai-service
+database
+mobile
+context
+docs
+deploy/.env
+*.log
+*.md
