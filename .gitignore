@@ -1,1 +1,10 @@
 e2e-last-run.log
+.jdk25/
+.pub-cache/
+.tmp/
+__pycache__/
+backend/civicAI-backend/run.log
+backend/civicAI-backend/run-err.log
+backend/civicAI-backend/hs_err_pid*.log
+backend/civicAI-backend/replay_pid*.log
+backend/civicAI-backend/target/run.pid
