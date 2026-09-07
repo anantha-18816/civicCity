@@ -21,9 +21,24 @@ The first production use case is infrastructure and road damage, especially poth
 | Health endpoint | COMPLETE |
 | AI service skeleton | COMPLETE |
 | Docker skeleton | COMPLETE |
-| Mobile directory | STARTED |
+| Mobile directory | COMPLETE |
 | Dashboard directory | STARTED |
-| Complaint management | IN PROGRESS |
+| Complaint management | COMPLETE |
+| AI analysis | COMPLETE |
+| Duplicate detection | COMPLETE |
+| Clustering | COMPLETE |
+| Priority engine | COMPLETE |
+| Department routing | COMPLETE |
+| Resolution | COMPLETE |
+| Dashboard APIs | COMPLETE |
+| Authentication (JWT) | COMPLETE |
+| Authorization (roles) | COMPLETE |
+| Logging | COMPLETE |
+| Monitoring (actuator) | COMPLETE |
+| API documentation (swagger) | COMPLETE |
+| Docker compose deployment | COMPLETE |
+| CI/CD (GitHub Actions) | COMPLETE |
+| Production deployment | IN PROGRESS |
 
 ## Backend
 
@@ -31,7 +46,7 @@ Location:
 backend/civicAI-backend
 
 Technology:
-Java 17 + Spring Boot 4.1.0
+Java 25 + Spring Boot 4.1.0
 
 Database:
 PostgreSQL 18.4

@@ -1,0 +1,44 @@
+services:
+  db:
+    image: postgis/postgis:16-3.4
+    environment:
+      POSTGRES_DB: civicai_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ../database/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      retries: 10
+
+  ai-service:
+    build: ../ai-service
+    environment:
+      ALLOWED_ORIGINS: "*"
+    ports:
+      - "8000:8000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/health')"]
+      interval: 10s
+      retries: 5
+
+  backend:
+    build: ../backend/civicAI-backend
+    depends_on:
+      db:
+        condition: service_healthy
+      ai-service:
+        condition: service_started
+    environment:
+      DB_URL: jdbc:postgresql://db:5432/civicai_db
+      DB_USER: postgres
+      DB_PASSWORD: ${DB_PASSWORD:-postgres}
+      AI_SERVICE_URL: http://ai-service:8000
+      JWT_SECRET: ${JWT_SECRET:-civicai-dev-secret-key-change-in-production-0123456789abcdef}
+    ports:
+      - "8080:8080"
+
+volumes:
+  pgdata:

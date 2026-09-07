@@ -95,7 +95,30 @@ class ApiClient {
     defaultValue: 'http://localhost:8080/api',
   );
 
-  Map<String, String> get _headers => {'Content-Type': 'application/json'};
+  static String? token;
+
+  Map<String, String> get _headers => {
+        'Content-Type': 'application/json',
+        if (ApiClient.token != null) 'Authorization': 'Bearer ${ApiClient.token}',
+      };
+
+  Future<Map<String, dynamic>> login(String email, String password) async {
+    final r = await http.post(Uri.parse('$baseUrl/auth/login'),
+        headers: _headers,
+        body: jsonEncode({'email': email, 'password': password}));
+    if (r.statusCode != 200) throw ApiException('Login failed (${r.statusCode})');
+    return jsonDecode(utf8.decode(r.bodyBytes)) as Map<String, dynamic>;
+  }
+
+  Future<Map<String, dynamic>> register(
+      String name, String email, String password) async {
+    final r = await http.post(Uri.parse('$baseUrl/auth/register'),
+        headers: _headers,
+        body:
+            jsonEncode({'name': name, 'email': email, 'password': password}));
+    if (r.statusCode != 201) throw ApiException('Registration failed (${r.statusCode})');
+    return jsonDecode(utf8.decode(r.bodyBytes)) as Map<String, dynamic>;
+  }
 
   Future<List<Complaint>> fetchComplaints() async {
     final r = await http.get(Uri.parse('$baseUrl/complaints'), headers: _headers);
@@ -141,7 +164,7 @@ class ApiClient {
   Future<bool> isBackendUp() async {
     try {
       final r = await http
-          .get(Uri.parse('$baseUrl/dashboard/resolution-stats'))
+          .get(Uri.parse('$baseUrl/health'))
           .timeout(const Duration(seconds: 4));
       return r.statusCode == 200;
     } catch (_) {

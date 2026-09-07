@@ -45,6 +45,20 @@ public class GlobalExceptionHandler {
                 .body(errorBody(HttpStatus.CONFLICT, ex.getMessage()));
     }
 
+    @ExceptionHandler(org.springframework.security.access.AccessDeniedException.class)
+    public ResponseEntity<Map<String, Object>> handleAccessDenied(
+            org.springframework.security.access.AccessDeniedException ex) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(errorBody(HttpStatus.FORBIDDEN, "Insufficient permissions"));
+    }
+
+    @ExceptionHandler(org.springframework.security.core.AuthenticationException.class)
+    public ResponseEntity<Map<String, Object>> handleAuthentication(
+            org.springframework.security.core.AuthenticationException ex) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(errorBody(HttpStatus.UNAUTHORIZED, ex.getMessage()));
+    }
+
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<Map<String, Object>> handleUnreadable(HttpMessageNotReadableException ex) {
         return ResponseEntity.badRequest().body(errorBody(HttpStatus.BAD_REQUEST, "Malformed request body"));

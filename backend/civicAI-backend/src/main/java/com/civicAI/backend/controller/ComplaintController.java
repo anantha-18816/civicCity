@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -45,12 +46,14 @@ public class ComplaintController {
     }
 
     @PatchMapping("/{id}/status")
+    @PreAuthorize("hasRole('OFFICER')")
     public ComplaintResponse updateComplaintStatus(@PathVariable Long id,
                                                    @Valid @RequestBody ComplaintStatusRequest request) {
         return complaintService.updateComplaintStatus(id, request);
     }
 
     @PostMapping("/{id}/assign")
+    @PreAuthorize("hasRole('OFFICER')")
     public ComplaintResponse assignComplaint(@PathVariable Long id,
                                              @Valid @RequestBody AssignRequest request) {
         return complaintService.assignComplaint(id, request.getDepartmentId());

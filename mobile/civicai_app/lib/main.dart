@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'api.dart';
+
 import 'screens/complaints_tab.dart';
 import 'screens/home_tab.dart';
 import 'screens/login_screen.dart';
@@ -62,12 +64,16 @@ class _AuthGateState extends State<AuthGate> {
               body: Center(
                   child: CircularProgressIndicator(color: AppColors.accent)));
         }
-        final prefs = snap.data!;
+final prefs = snap.data!;
+        ApiClient.token = prefs.getString('token');
         final email = prefs.getString('email');
         if (email == null) {
-          return LoginScreen(onLogin: (name, mail) async {
+          return LoginScreen(onLogin: (name, mail, token, id) async {
             await prefs.setString('name', name);
             await prefs.setString('email', mail);
+            await prefs.setString('token', token);
+            await prefs.setInt('userId', id);
+            ApiClient.token = token;
             setState(() {
               _prefs = SharedPreferences.getInstance();
             });
@@ -77,6 +83,7 @@ class _AuthGateState extends State<AuthGate> {
           key: ValueKey(email),
           name: prefs.getString('name') ?? email.split('@').first,
           email: email,
+          userId: prefs.getInt('userId') ?? 0,
         );
       },
     );
@@ -86,7 +93,12 @@ class _AuthGateState extends State<AuthGate> {
 class HomeShell extends StatefulWidget {
   final String name;
   final String email;
-  const HomeShell({super.key, required this.name, required this.email});
+  final int userId;
+  const HomeShell(
+      {super.key,
+      required this.name,
+      required this.email,
+      required this.userId});
 
   @override
   State<HomeShell> createState() => _HomeShellState();
@@ -100,8 +112,8 @@ class _HomeShellState extends State<HomeShell> {
   Widget build(BuildContext context) {
     final screens = [
       HomeTab(name: widget.name, onViewAll: () => setState(() => _index = 2)),
-      ReportTab(
-          userId: 1,
+ReportTab(
+          userId: widget.userId,
           onSubmitted: () => setState(() {
                 _index = 2;
                 _complaintsReloadTick++;
@@ -160,6 +172,7 @@ class _HomeShellState extends State<HomeShell> {
     );
   }
 }
+
 
 
 

@@ -3,9 +3,9 @@ spring:
     name: civicai-backend
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/civicai_db
-    username: postgres
-    password: RishiAnan@7
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/civicai_db}
+    username: ${DB_USER:postgres}
+    password: ${DB_PASSWORD:RishiAnan@7}
     driver-class-name: org.postgresql.Driver
 
   jpa:
@@ -19,8 +19,30 @@ spring:
 server:
   port: 8080
 
+jwt:
+  secret: ${JWT_SECRET:civicai-dev-secret-key-change-in-production-0123456789abcdef}
+  expiration-ms: ${JWT_EXPIRATION_MS:86400000}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: when-authorized
+
+logging:
+  level:
+    http.requests: INFO
+    com.civicAI.backend: INFO
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+
 ai-service:
-  url: http://localhost:8000
+  url: ${AI_SERVICE_URL:http://localhost:8000}
 
 duplicate:
   radius-m: 100
