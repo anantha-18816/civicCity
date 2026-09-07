@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CivicAI · Admin</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <!-- Login gate -->
+  <div id="view-login" class="login-wrap hidden">
+    <form id="login-form" class="login-card" autocomplete="off">
+      <div class="logo-dot"></div>
+      <h1>CivicAI</h1>
+      <p class="tagline">Municipal operations console</p>
+      <label class="field">
+        <span>Email</span>
+        <input id="login-email" type="email" placeholder="officer@civicai.test" value="officer@civicai.test" />
+      </label>
+      <label class="field">
+        <span>Password</span>
+        <input id="login-password" type="password" placeholder="••••••••" value="officer123" />
+      </label>
+      <p id="login-error" class="form-error hidden"></p>
+      <button type="submit" class="btn-primary" id="login-btn">Sign in</button>
+      <p class="muted small">Sign-in is restricted to OFFICER / ADMIN accounts.</p>
+    </form>
+  </div>
+
+  <!-- App -->
+  <div id="view-app" class="app hidden">
+
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="logo-dot small"></div>
+        <div>
+          <b>CivicAI</b>
+          <span class="muted small">Admin</span>
+        </div>
+      </div>
+      <nav>
+        <button class="nav-item active" data-view="overview">Overview</button>
+        <button class="nav-item" data-view="map">Complaint map</button>
+        <button class="nav-item" data-view="heatmap">Heatmap</button>
+        <button class="nav-item" data-view="priority">Priority queue</button>
+        <button class="nav-item" data-view="departments">Departments</button>
+        <button class="nav-item" data-view="complaints">Complaints</button>
+      </nav>
+      <div class="sidebar-foot">
+        <div class="muted small" id="whoami">—</div>
+        <button class="btn-ghost" id="logout">Sign out</button>
+      </div>
+    </aside>
+
+    <main class="content">
+      <section id="view-overview" class="view active"></section>
+      <section id="view-map" class="view hidden">
+        <div class="card title-card">
+          <h2>Complaint map</h2>
+          <p class="muted small">Colored by status. Click a marker for details.</p>
+        </div>
+        <div id="map" class="map-card"></div>
+      </section>
+      <section id="view-heatmap" class="view hidden">
+        <div class="card title-card">
+          <h2>Heatmap</h2>
+          <p class="muted small">Concentration of reports weighted by severity.</p>
+        </div>
+        <div id="heatmap" class="map-card"></div>
+      </section>
+      <section id="view-priority" class="view hidden"></section>
+      <section id="view-departments" class="view hidden"></section>
+      <section id="view-complaints" class="view hidden"></section>
+    </main>
+  </div>
+
+  <div id="toast" class="toast hidden"></div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

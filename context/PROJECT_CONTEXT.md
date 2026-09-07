@@ -22,7 +22,7 @@ The first production use case is infrastructure and road damage, especially poth
 | AI service skeleton | COMPLETE |
 | Docker skeleton | COMPLETE |
 | Mobile directory | COMPLETE |
-| Dashboard directory | STARTED |
+| Dashboard directory | COMPLETE |
 | Complaint management | COMPLETE |
 | AI analysis | COMPLETE |
 | Duplicate detection | COMPLETE |

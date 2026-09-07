@@ -110,6 +110,16 @@ Priority should consider:
 - [x] API documentation
 - [ ] Deployment
 
+## Phase 12 - Admin Dashboard
+
+- [x] OFFICER login (JWT)
+- [x] Overview stats + AI insights
+- [x] Complaint map with status markers
+- [x] Severity heatmap
+- [x] Priority queue with scores
+- [x] Department workload by priority
+- [x] Complaint register table
+
 
 
 
