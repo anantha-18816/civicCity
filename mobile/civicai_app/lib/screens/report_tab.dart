@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../api.dart';
 import '../widgets/common.dart';
@@ -26,6 +27,7 @@ class _ReportTabState extends State<ReportTab> {
   String _issue = 'POTHOLE';
   bool _locating = false;
   bool _submitting = false;
+  XFile? _photo;
 
   static const issues = [
     'POTHOLE',
@@ -62,6 +64,43 @@ class _ReportTabState extends State<ReportTab> {
     if (mounted) setState(() => _locating = false);
   }
 
+  Future<void> _pickPhoto() async {
+    final source = await showModalBottomSheet<ImageSource>(
+      context: context,
+      backgroundColor: AppColors.card,
+      shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      builder: (_) => SafeArea(
+        child: Column(mainAxisSize: MainAxisSize.min, children: [
+          ListTile(
+            leading: const Icon(Icons.photo_camera_rounded,
+                color: AppColors.accent),
+            title: const Text('Take a photo',
+                style: TextStyle(color: Colors.white)),
+            onTap: () => Navigator.pop(context, ImageSource.camera),
+          ),
+          ListTile(
+            leading:
+                const Icon(Icons.photo_library_rounded, color: AppColors.accent),
+            title: const Text('Choose from gallery',
+                style: TextStyle(color: Colors.white)),
+            onTap: () => Navigator.pop(context, ImageSource.gallery),
+          ),
+        ]),
+      ),
+    );
+    if (source == null) return;
+    try {
+      final picked = await ImagePicker().pickImage(source: source);
+      if (picked != null && mounted) setState(() => _photo = picked);
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            backgroundColor: AppColors.card, content: Text('Photo failed: $e')));
+      }
+    }
+  }
+
   Future<void> _submit() async {
     final lat = double.tryParse(_lat.text.trim());
     final lng = double.tryParse(_lng.text.trim());
@@ -73,7 +112,7 @@ class _ReportTabState extends State<ReportTab> {
     }
     setState(() => _submitting = true);
     try {
-      await _api.createComplaint(
+      final created = await _api.createComplaint(
         userId: widget.userId,
         issueType: _issue,
         title: _title.text.trim(),
@@ -81,9 +120,20 @@ class _ReportTabState extends State<ReportTab> {
         latitude: lat,
         longitude: lng,
       );
+      AiAnalysis? analysis;
+      final photo = _photo;
+      if (photo != null) {
+        try {
+          analysis =
+              await _api.analyzeComplaint(created.id, File(photo.path));
+        } catch (e) {
+          analysis = null;
+        }
+      }
       if (!mounted) return;
       _title.clear();
       _desc.clear();
+      setState(() => _photo = null);
       showDialog(
         context: context,
         builder: (_) => AlertDialog(
@@ -92,10 +142,33 @@ class _ReportTabState extends State<ReportTab> {
               borderRadius: BorderRadius.circular(24)),
           title: const Icon(Icons.check_circle_rounded,
               color: AppColors.successGreen, size: 54),
-          content: const Text(
-            'Report submitted!\nAI analysis will run shortly.',
-            textAlign: TextAlign.center,
-            style: TextStyle(color: Colors.white70),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text(
+                'Report submitted!',
+                textAlign: TextAlign.center,
+                style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700),
+              ),
+              const SizedBox(height: 6),
+              if (analysis == null)
+                const Text(
+                  'AI analysis will run shortly.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: Colors.white70),
+                )
+              else ...[
+                Text(
+                  'AI scanned it: ${analysis.detectedObject ?? 'review pending'} '
+                  '(${((analysis.confidence ?? 0) * 100).round()}% confident)',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                      color: analysis.severity == 'HIGH'
+                          ? Colors.orangeAccent
+                          : Colors.white70),
+                ),
+              ],
+            ],
           ),
           actions: [
             FilledButton(
@@ -219,22 +292,41 @@ class _ReportTabState extends State<ReportTab> {
           decoration: BoxDecoration(
               color: AppColors.card,
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: AppColors.cardBorder)),
-          child: Row(children: [
-            Icon(Icons.photo_camera_rounded,
-                color: mobileCamera ? AppColors.accent : AppColors.muted),
-            const SizedBox(width: 10),
-            Expanded(
-                child: Text(
-                    mobileCamera
-                        ? 'Attach a photo from your camera'
-                        : 'Photo attach is enabled on Android/iOS devices',
-                    style:
-                        const TextStyle(color: Colors.white70, fontSize: 12.5))),
-            if (mobileCamera)
-              const Icon(Icons.arrow_forward_ios_rounded,
-                  size: 14, color: AppColors.muted),
-          ]),
+              border: Border.all(
+                  color: _photo != null ? AppColors.accent : AppColors.cardBorder)),
+          child: InkWell(
+            onTap: mobileCamera ? _pickPhoto : null,
+            borderRadius: BorderRadius.circular(16),
+            child: Row(children: [
+              if (_photo != null)
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(10),
+                  child: Image.file(File(_photo!.path),
+                      width: 46, height: 46, fit: BoxFit.cover),
+                )
+              else
+                Icon(Icons.photo_camera_rounded,
+                    color: mobileCamera ? AppColors.accent : AppColors.muted),
+              const SizedBox(width: 10),
+              Expanded(
+                  child: Text(
+                      _photo != null
+                          ? 'Photo attached — AI will verify'
+                          : (mobileCamera
+                              ? 'Attach a photo from your camera'
+                              : 'Photo attach is enabled on Android/iOS devices'),
+                      style:
+                          const TextStyle(color: Colors.white70, fontSize: 12.5))),
+              if (_photo != null)
+                IconButton(
+                    icon: const Icon(Icons.close_rounded,
+                        size: 18, color: AppColors.muted),
+                    onPressed: () => setState(() => _photo = null))
+              else if (mobileCamera)
+                const Icon(Icons.arrow_forward_ios_rounded,
+                    size: 14, color: AppColors.muted),
+            ]),
+          ),
         ),
         const SizedBox(height: 22),
         SizedBox(

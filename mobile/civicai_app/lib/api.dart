@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:http/http.dart' as http;
 
@@ -89,6 +90,34 @@ class AiInsights {
       );
 }
 
+class AiAnalysis {
+  final int complaintId;
+  final String? detectedObject;
+  final String? severity;
+  final double? confidence;
+  final double? roadRisk;
+  final DateTime? analyzedAt;
+
+  AiAnalysis({
+    required this.complaintId,
+    this.detectedObject,
+    this.severity,
+    this.confidence,
+    this.roadRisk,
+    this.analyzedAt,
+  });
+
+  factory AiAnalysis.fromJson(Map<String, dynamic> j) => AiAnalysis(
+        complaintId: (j['complaintId'] as num?)?.toInt() ?? 0,
+        detectedObject: j['detectedObject'] as String?,
+        severity: j['severity'] as String?,
+        confidence: (j['confidence'] as num?)?.toDouble(),
+        roadRisk: (j['roadRisk'] as num?)?.toDouble(),
+        analyzedAt:
+            j['analyzedAt'] != null ? DateTime.tryParse(j['analyzedAt']) : null,
+      );
+}
+
 class ApiClient {
   static const baseUrl = String.fromEnvironment(
     'API_BASE',
@@ -158,6 +187,22 @@ class ApiClient {
         await http.get(Uri.parse('$baseUrl/dashboard/ai-insights'), headers: _headers);
     if (r.statusCode != 200) throw ApiException('Insights unavailable');
     return AiInsights.fromJson(jsonDecode(utf8.decode(r.bodyBytes)));
+  }
+
+  /// Uploads a photo and lets the AI service classify the issue.
+  Future<AiAnalysis> analyzeComplaint(int complaintId, File image) async {
+    final req = http.MultipartRequest(
+        'POST', Uri.parse('$baseUrl/complaints/$complaintId/analysis'));
+    req.headers.addAll({
+      if (ApiClient.token != null) 'Authorization': 'Bearer ${ApiClient.token}',
+    });
+    req.files.add(await http.MultipartFile.fromPath('image', image.path));
+    final streamed = await req.send().timeout(const Duration(seconds: 120));
+    final r = await http.Response.fromStream(streamed);
+    if (r.statusCode != 200) {
+      throw ApiException('AI analysis failed (${r.statusCode})');
+    }
+    return AiAnalysis.fromJson(jsonDecode(utf8.decode(r.bodyBytes)));
   }
 
   /// Connectivity probe used by the login screen.

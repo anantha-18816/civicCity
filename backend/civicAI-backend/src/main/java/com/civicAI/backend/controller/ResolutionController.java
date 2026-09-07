@@ -25,8 +25,9 @@ public class ResolutionController {
         this.resolutionService = resolutionService;
     }
 
-    @PostMapping("/complaints/{id}/resolution")
+@PostMapping("/complaints/{id}/resolution")
     @ResponseStatus(HttpStatus.CREATED)
+    @PreAuthorize("hasRole('OFFICER')")
     public ResolutionResponse submit(@PathVariable Long id,
                                      @Valid @RequestBody ResolutionRequest request) {
         return resolutionService.submitResolution(id, request);
@@ -37,7 +38,8 @@ public class ResolutionController {
         return resolutionService.getByComplaintId(id);
     }
 
-    @PostMapping("/resolutions/{id}/verify")
+@PostMapping("/resolutions/{id}/verify")
+    @PreAuthorize("hasRole('OFFICER')")
     public ResolutionResponse verify(@PathVariable Long id,
                                      @Valid @RequestBody VerificationRequest request) {
         return resolutionService.verify(id, request.getVerificationStatus());
