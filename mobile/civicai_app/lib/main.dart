@@ -84,6 +84,18 @@ final prefs = snap.data!;
           name: prefs.getString('name') ?? email.split('@').first,
           email: email,
           userId: prefs.getInt('userId') ?? 0,
+          onLogout: () async {
+            ApiClient.token = null;
+            await prefs.remove('token');
+            await prefs.remove('email');
+            await prefs.remove('name');
+            await prefs.remove('userId');
+            if (context.mounted) {
+              setState(() {
+                _prefs = SharedPreferences.getInstance();
+              });
+            }
+          },
         );
       },
     );
@@ -94,11 +106,13 @@ class HomeShell extends StatefulWidget {
   final String name;
   final String email;
   final int userId;
+  final VoidCallback onLogout;
   const HomeShell(
       {super.key,
       required this.name,
       required this.email,
-      required this.userId});
+      required this.userId,
+      required this.onLogout});
 
   @override
   State<HomeShell> createState() => _HomeShellState();
@@ -122,7 +136,8 @@ ReportTab(
       ProfileTab(
           name: widget.name,
           email: widget.email,
-          onLogout: () => setState(() {})),
+          userId: widget.userId,
+          onLogout: widget.onLogout),
     ];
     return Container(
       decoration: const BoxDecoration(

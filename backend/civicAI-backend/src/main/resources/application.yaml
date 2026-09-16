@@ -67,6 +67,8 @@ priority:
   daily-age-bonus: 1.5
   max-age-bonus: 15
   location-bonus: 10
+  center-latitude: ${PRIORITY_CENTER_LAT:17.385}   # Hyderabad city center
+  center-longitude: ${PRIORITY_CENTER_LON:78.4867}
   center-radius-m: 5000
   road-issue-types: POTHOLE,ROAD_DAMAGE
   road-importance-bonus: 8

@@ -182,6 +182,35 @@ class ComplaintWorkflowIntegrationTests {
         org.junit.jupiter.api.Assertions.assertEquals("RESOLVED", body.get("status").asText());
     }
 
+    @Test
+    @Rollback
+    void createComplaintUsesAuthenticatedUserNotBodyUserId() throws Exception {
+        Citizen citizen = registerCitizen();
+        mockMvc.perform(post("/api/complaints")
+                        .header("Authorization", "Bearer " + citizen.token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"userId\":999999,"
+                                + "\"issueType\":\"POTHOLE\",\"title\":\"Spoof attempt\","
+                                + "\"description\":\"body userId must be ignored\","
+                                + "\"latitude\":17.385,\"longitude\":78.4867}"))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.userId").value(citizen.userId));
+    }
+
+    @Test
+    @Rollback
+    void createComplaintWorksWithoutBodyUserId() throws Exception {
+        Citizen citizen = registerCitizen();
+        mockMvc.perform(post("/api/complaints")
+                        .header("Authorization", "Bearer " + citizen.token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"issueType\":\"POTHOLE\",\"title\":\"No userId body\","
+                                + "\"description\":\"userId derived from JWT\","
+                                + "\"latitude\":17.385,\"longitude\":78.4867}"))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.userId").value(citizen.userId));
+    }
+
     private record Citizen(String token, long userId, String email) {
     }
 }

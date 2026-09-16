@@ -74,7 +74,7 @@
   $("#modal-close").addEventListener("click", closeModal);
   $("#modal").addEventListener("click", function (e) { if (e.target === $("#modal")) closeModal(); });
 
-  var VALID_STATUS = ["SUBMITTED", "AI_ANALYZED", "ASSIGNED", "IN_PROGRESS", "RESOLVED", "REJECTED"];
+  var VALID_STATUS = ["SUBMITTED", "AI_ANALYZED", "ASSIGNED", "IN_PROGRESS", "RESOLVED", "VERIFIED", "REJECTED"];
 
   function officerAllowed() {
     return state.who && (state.who.role === "OFFICER" || state.who.role === "ADMIN");

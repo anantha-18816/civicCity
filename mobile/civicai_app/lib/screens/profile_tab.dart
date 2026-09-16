@@ -7,11 +7,13 @@ import '../widgets/common.dart';
 class ProfileTab extends StatefulWidget {
   final String name;
   final String email;
+  final int userId;
   final VoidCallback onLogout;
   const ProfileTab(
       {super.key,
       required this.name,
       required this.email,
+      required this.userId,
       required this.onLogout});
 
   @override
@@ -32,7 +34,7 @@ class _ProfileTabState extends State<ProfileTab> {
     try {
       final list = await _api.fetchComplaints();
       if (!mounted) return;
-      setState(() => _myReports = list.length);
+      setState(() => _myReports = list.where((c) => c.userId == widget.userId).length);
     } catch (_) {}
   }
 

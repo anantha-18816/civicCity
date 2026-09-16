@@ -38,7 +38,7 @@ The first production use case is infrastructure and road damage, especially poth
 | API documentation (swagger) | COMPLETE |
 | Docker compose deployment | COMPLETE |
 | CI/CD (GitHub Actions) | COMPLETE |
-| Production deployment | IN PROGRESS |
+| Production deployment | COMPLETE |
 
 ## Backend
 
@@ -90,34 +90,24 @@ Expected:
 
 ## Current Feature
 
-Complaint submission.
+The full complaint lifecycle is implemented:
 
-Target:
-
-POST /api/complaints
-
-Example request:
-
-{
-  "userId": 1,
-  "issueType": "POTHOLE",
-  "title": "Large pothole near college",
-  "description": "Deep pothole causing danger to vehicles",
-  "latitude": 17.3850,
-  "longitude": 78.4867
-}
+- Citizen reports a complaint (mobile app / API).
+- AI service analyzes photos (severity, confidence, image hash).
+- Duplicate detection links nearby similar complaints.
+- Complaints are clustered and prioritized.
+- Routing assigns the right department automatically.
+- Officers resolve and verify from the admin dashboard.
 
 ## Current Implementation State
 
-The backend has successfully compiled using:
+All phases of the roadmap are complete. Verification:
 
-.\mvnw.cmd clean compile
-
-The Complaint entity/repository/controller/service workflow is currently being built.
-
-The immediate goal is:
-
-Complaint creation -> PostgreSQL/PostGIS -> API response.
+- Backend compiles and all 19 integration tests pass.
+- `.\mvnw.cmd clean compile`
+- Flutter app: `flutter analyze` clean, tests pass.
+- AI service: pytest suite passes (CI).
+- Full stack runs via `deploy/docker-compose.yml` (db + ai-service + backend + nginx proxy).
 
 ## Complaint Lifecycle
 

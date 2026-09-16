@@ -4,9 +4,12 @@ import com.civicAI.backend.dto.AssignRequest;
 import com.civicAI.backend.dto.ComplaintRequest;
 import com.civicAI.backend.dto.ComplaintResponse;
 import com.civicAI.backend.dto.ComplaintStatusRequest;
+import com.civicAI.backend.security.CurrentUser;
 import com.civicAI.backend.service.ComplaintService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -14,7 +17,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -31,8 +33,9 @@ public class ComplaintController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ComplaintResponse createComplaint(@Valid @RequestBody ComplaintRequest request) {
-        return complaintService.createComplaint(request);
+    public ComplaintResponse createComplaint(@Valid @RequestBody ComplaintRequest request,
+                                             @AuthenticationPrincipal CurrentUser currentUser) {
+        return complaintService.createComplaint(currentUser.id(), request);
     }
 
     @GetMapping("/{id}")

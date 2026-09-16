@@ -5,7 +5,6 @@ import jakarta.validation.constraints.NotNull;
 
 public class ComplaintRequest {
 
-    @NotNull(message = "userId is required")
     private Long userId;
 
     @NotBlank(message = "issueType is required")

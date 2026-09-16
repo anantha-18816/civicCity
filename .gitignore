@@ -2,6 +2,7 @@ e2e-last-run.log
 .jdk25/
 .pub-cache/
 .tmp/
+.gradle/
 __pycache__/
 backend/civicAI-backend/run.log
 backend/civicAI-backend/run-err.log

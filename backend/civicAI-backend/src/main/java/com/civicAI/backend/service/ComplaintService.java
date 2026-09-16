@@ -37,11 +37,11 @@ public class ComplaintService {
         return toResponse(routingService.assignManually(id, departmentId));
     }
 
-    public ComplaintResponse createComplaint(ComplaintRequest request) {
+    public ComplaintResponse createComplaint(Long userId, ComplaintRequest request) {
 
         Complaint complaint = new Complaint();
 
-        complaint.setUserId(request.getUserId());
+        complaint.setUserId(userId);
         complaint.setIssueType(request.getIssueType());
         complaint.setTitle(request.getTitle());
         complaint.setDescription(request.getDescription());

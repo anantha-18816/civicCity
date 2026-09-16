@@ -95,7 +95,7 @@ class AiAnalysis {
   final String? detectedObject;
   final String? severity;
   final double? confidence;
-  final double? roadRisk;
+  final String? roadRisk;
   final DateTime? analyzedAt;
 
   AiAnalysis({
@@ -112,16 +112,19 @@ class AiAnalysis {
         detectedObject: j['detectedObject'] as String?,
         severity: j['severity'] as String?,
         confidence: (j['confidence'] as num?)?.toDouble(),
-        roadRisk: (j['roadRisk'] as num?)?.toDouble(),
+        roadRisk: j['roadRisk'] as String?,
         analyzedAt:
             j['analyzedAt'] != null ? DateTime.tryParse(j['analyzedAt']) : null,
       );
 }
 
 class ApiClient {
+  /// Base URL for the backend API.
+  /// On Android emulator, use 10.0.2.2 to reach host machine.
+  /// On physical devices or desktop, use --dart-define=API_BASE=...
   static const baseUrl = String.fromEnvironment(
     'API_BASE',
-    defaultValue: 'http://localhost:8080/api',
+    defaultValue: 'http://10.0.2.2:8080/api',
   );
 
   static String? token;
